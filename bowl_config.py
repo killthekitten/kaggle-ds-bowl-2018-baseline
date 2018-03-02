@@ -26,14 +26,14 @@ class BowlConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 1000
+    TRAIN_ROIS_PER_IMAGE = 600
 
     STEPS_PER_EPOCH = None
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 5
     
-    USE_MINI_MASK = False
+    USE_MINI_MASK = True
     
 bowl_config = BowlConfig()
 bowl_config.display()
