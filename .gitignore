@@ -99,3 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+mask_rcnn_coco.h5
+logs/
+stage1_sample_submission.csv
+stage1_train/
+stage1_test/
+stage1_train_labels.csv
+submission.csv
