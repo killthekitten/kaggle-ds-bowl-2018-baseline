@@ -43,6 +43,12 @@ This will create `submission.csv` in the repo and overwrite the old one (you're 
 
 6. Submit! You should get around 0.342 score on LB after 100 epochs. 
 
+## What's else inside?
+
+* [Poor man's Exploration Data Analysis](https://github.com/killthekitten/kaggle-ds-bowl-2018-baseline/blob/master/visualize_inference.ipynb) -- to get a basic idea about data.
+* [Test submit for errors](https://github.com/killthekitten/kaggle-ds-bowl-2018-baseline/blob/master/test_submission_for_errors.ipynb) -- tries to read the submission and visualizes separate masks.
+* [Visualize inference](https://github.com/killthekitten/kaggle-ds-bowl-2018-baseline/blob/master/visualize_inference.ipynb) -- since there's not too many masks in the test dataset, it's easy to look through all of them in a single place.
+
 ## TODO
 
 - [ ] Fix validation. For now, train data is used as a validation set.
