@@ -55,3 +55,5 @@ This will create `submission.csv` in the repo and overwrite the old one (you're 
 - [ ] Normalize data.
 - [ ] Move configuration to `argsparse` for easier hyperparameter search.
 - [ ] Parallelize data loading.
+- [ ] Augmentations.
+- [ ] External Data.
