@@ -41,3 +41,9 @@ CUDA_VISIBLE_DEVICES="0" python inference.py
 This will create `submission.csv` in the repo and overwrite the old one (you're welcome to fix this with a PR).
 
 6. Submit! You should get around 0.342 score on LB after 100 epochs. 
+
+## TODO
+
+- [ ] Fix validation. For now, train data is used as a validation set.
+- [ ] Normalize data.
+- [ ] Move configuration to `argsparse` for easier hyperparameter search.
