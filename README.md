@@ -5,7 +5,8 @@ Full train/inference/submission pipeline adapted to the [Data Science Bowl compe
 I did almost no changes to the original code, except for:
 
 * Everything custom in `bowl_config.py`.
-* `VALIDATION_STEPS` and `STEPS_PER_EPOCH` are now forced to depend on the dataset size.
+* `VALIDATION_STEPS` and `STEPS_PER_EPOCH` are now forced to depend on the dataset size, hardcoded.
+* `multiprocessing=False`, hardcoded.
 
 ## Quick Start
 
@@ -47,3 +48,4 @@ This will create `submission.csv` in the repo and overwrite the old one (you're 
 - [ ] Fix validation. For now, train data is used as a validation set.
 - [ ] Normalize data.
 - [ ] Move configuration to `argsparse` for easier hyperparameter search.
+- [ ] Parallelize data loading.
