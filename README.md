@@ -1,6 +1,6 @@
 # kaggle-ds-bowl-2018-baseline
 
-Full train/inference/submission pipeline adapted to the [Data Science Bowl competition](https://www.kaggle.com/c/data-science-bowl-2018/) from https://github.com/matterport/Mask_RCNN. Kudos to [@matterport](https://github.com/matterport), [@waleedka](https://github.com/waleedka) and others for the code. It is well written, but is also somewhat opinionated, which makes it harder to guess what's going on under the hood. And hat's the main reason for my fork to exist.
+Full train/inference/submission pipeline adapted to the [Data Science Bowl competition](https://www.kaggle.com/c/data-science-bowl-2018/) from https://github.com/matterport/Mask_RCNN. Kudos to [@matterport](https://github.com/matterport), [@waleedka](https://github.com/waleedka) and others for the code. It is well written, but is also somewhat opinionated, which makes it harder to guess what's going on under the hood, which is the reason for my fork to exist.
 
 I did almost no changes to the original code, except for:
 
