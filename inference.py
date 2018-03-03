@@ -7,7 +7,7 @@ from tqdm import tqdm
 from inference_config import inference_config
 from bowl_dataset import BowlDataset
 from utils import rle_encode, rle_decode, rle_to_string
-
+import functions as f
 ROOT_DIR = os.getcwd()
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
@@ -32,7 +32,8 @@ dataset_test.prepare()
 
 output = []
 sample_submission = pd.read_csv('stage1_sample_submission.csv')
-
+ImageId = []
+EncodedPixels = []
 for image_id in tqdm(sample_submission.ImageId):
     image_path = os.path.join('stage1_test', image_id, 'images', image_id + '.png')
     
@@ -41,25 +42,10 @@ for image_id in tqdm(sample_submission.ImageId):
     r = results[0]
     
     masks = r['masks']
-    
-    count = masks.shape[-1]
-    occlusion = np.logical_not(masks[:, :, -1]).astype(np.uint8)
-    
-    for i in range(count - 2, -1, -1):
-        mask = masks[:, :, i] * occlusion
-        mask_rle = rle_to_string(rle_encode(mask))
-        
-        # Sanity check
-        try:
-            rle_decode(mask_rle, original_image.shape[:-1])
-            output.append([image_id, mask_rle])
-            occlusion = np.logical_and(occlusion, np.logical_not(masks[:, :, i]))
-        
-        except Exception as e:
-            print(e)
-            print(image_id)
-            print('---')
-        
-output_df = pd.DataFrame(output, columns=['ImageId', 'EncodedPixels'])
-output_df.to_csv('submission.csv', index=False, encoding='utf-8')
-        
+    ImageId_batch, EncodedPixels_batch = f.numpy2encoding_no_overlap2(masks, image_id, r['scores'])
+    ImageId += ImageId_batch
+    EncodedPixels += EncodedPixels_batch
+
+
+
+f.write2csv('submission_v2.csv', ImageId, EncodedPixels)
