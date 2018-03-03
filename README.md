@@ -20,9 +20,9 @@ ln -s stage1_train ../kaggle-dsbowl-2018-dataset-fixes/stage1_train
 2. Download the rest of the official dataset and unzip it to the repo:
 
 ```bash
-unzip ~/Downloads/stage1_test.zip .
-unzip ~/Downloads/stage1_train_labels.csv.zip .
-unzip ~/Downloads/stage1_sample_submission.csv.zip .
+unzip ~/Downloads/stage1_test.zip -d stage1_test
+unzip ~/Downloads/stage1_train_labels.csv.zip -d .
+unzip ~/Downloads/stage1_sample_submission.csv.zip -d .
 ```
 
 3. Install `pycocotools` and COCO pretrained weights (`mask_rcnn_coco.h5`). General idea is described [here](https://github.com/matterport/Mask_RCNN#installation). Keep in mind, to install pycocotools properly, it's better to run `make install` instead of `make`.
