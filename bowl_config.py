@@ -32,8 +32,15 @@ class BowlConfig(Config):
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 5
-    
+
     USE_MINI_MASK = True
-    
+
+    MAX_GT_INSTANCES = 256
+
+    DETECTION_MAX_INSTANCES = 512
+
+    RESNET_ARCHITECTURE = "resnet50"
+
+
 bowl_config = BowlConfig()
 bowl_config.display()
