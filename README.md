@@ -16,7 +16,7 @@ I did almost no changes to the original code, except for:
 
 ```bash
 git clone https://github.com/lopuhin/kaggle-dsbowl-2018-dataset-fixes ../kaggle-dsbowl-2018-dataset-fixes
-ln -s stage1_train ../kaggle-dsbowl-2018-dataset-fixes/stage1_train
+ln -s ../kaggle-dsbowl-2018-dataset-fixes/stage1_train stage1_train
 ```
 
 2. Download the rest of the official dataset and unzip it to the repo:
