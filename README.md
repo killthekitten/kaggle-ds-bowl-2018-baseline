@@ -4,9 +4,10 @@ Full train/inference/submission pipeline adapted to the [Data Science Bowl compe
 
 I did almost no changes to the original code, except for:
 
-* Everything custom in `bowl_config.py`.
+* Everything custom in `bowl_config.py` and `bowl_dataset.py`.
 * `VALIDATION_STEPS` and `STEPS_PER_EPOCH` are now forced to depend on the dataset size, hardcoded.
 * `multiprocessing=False`, hardcoded.
+* [@John1231983]'s changed from [this PR](https://github.com/killthekitten/kaggle-ds-bowl-2018-baseline/pull/1).
 
 ## Quick Start
 
