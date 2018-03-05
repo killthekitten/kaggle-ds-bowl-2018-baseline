@@ -43,7 +43,7 @@ CUDA_VISIBLE_DEVICES="0" python inference.py
 
 This will create `submission.csv` in the repo and overwrite the old one (you're welcome to fix this with a PR).
 
-6. Submit! You should get around 0.4 score on LB after 100 epochs.
+6. Submit! You should get around 0.361 score on LB after 100 epochs.
 
 ## What's else inside?
 
