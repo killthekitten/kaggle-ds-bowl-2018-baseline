@@ -130,6 +130,21 @@ def combine_masks(img_ids, source_dir, mosaic_shape):
     return masks
 
 
+def combine_non_mosaic_masks(img_id, source_dir, shape):
+    """
+    Loads all mask related to `img_id` and stacks them together.
+    """
+    mask_paths = glob(os.path.join(source_dir, img_id, "masks", "**.png"))
+    channels_count = len(mask_paths)
+    h, w = shape
+    masks = np.zeros((h, w, channels_count), dtype=np.bool)
+
+    for i, mask_path in enumerate(mask_paths):
+        mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        masks[:, :, i] = np.where(mask > 128, True, False)
+
+    return masks
+
 def extract_mosaic_ids_from_df(df):
     """
     Regroups Emil's df in a way to be used with `combine_masks` and `combine_images` (watch the order!)
@@ -163,13 +178,15 @@ if __name__ == "__main__":
         cv2.imwrite(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".png"), mosaic)
         mask_mosaic = combine_masks(row["img_id"], TRAIN_DIR, mosaic.shape[:-1])
         mask_mosaic, deleted_layers_count = merge_layers_on_edges(mask_mosaic)
-        np.save(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".npy"), mask_mosaic.astype(bool))
+        np.save(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".npy"), mask_mosaic)
 
     print("Copying non-mosaic train images to the same place:")
     for i, row in tqdm(non_mosaics.iterrows()):
         non_mosaic = cv2.imread(os.path.join(TRAIN_DIR, row["img_id"], "images", row["img_id"] + ".png"))
         cv2.imwrite(os.path.join(TRAIN_MOSAICS_DIR, str(row["mosaic_idx"]) + ".png"), non_mosaic)
-
+        non_mosaic_mask = combine_non_mosaic_masks(row["img_id"], TRAIN_DIR, non_mosaic.shape[:-1])
+        np.save(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".npy"), non_mosaic_mask)
+        
     print("Generating test mosaics:")
     for i, row in tqdm(test_mosaics.iterrows()):
         mosaic = combine_images(row["img_id"], TEST_DIR)
