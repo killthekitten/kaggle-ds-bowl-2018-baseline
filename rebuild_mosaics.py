@@ -28,18 +28,6 @@ def combine_images(img_ids, source_dir):
     return full
 
 
-def load_masks(img_id, source_dir):
-    """
-    Loads all masks related to the `img_id` image and stacks them into a single numpy array.
-    """
-    mask_paths = glob(os.path.join(source_dir, img_id, "masks", "**.png"))
-    masks = [cv2.imread(mask_path, 0) for mask_path in mask_paths]
-    masks = np.stack(masks, axis=-1)
-    masks = np.where(masks > 128, 1, 0)
-
-    return masks
-
-
 def map_layers_left_to_right(mask, center, left_half_idx, right_half_idx):
     """
     Selects two adjacent 1-pixel stripes on the edges of left and right halves, then calculates
@@ -78,6 +66,9 @@ def merge_layers(mask, intersection_map, survivor_half_idx, merged_half_idx):
     Merges `merged_half_idx` channels of the mask into `survivor_half_idx`. If no intersection
     was found between layers, layers are kept.
     """
+    if intersection_map.shape[0] == 0 or intersection_map.shape[1] == 0:
+        return mask, 0
+
     merged_idx = []
 
     for i in range(survivor_half_idx.shape[0]):
@@ -97,14 +88,13 @@ def merge_layers_on_edges(mask):
     """
     First merges layers left halves to right halves, then top to bottom.
     """
-
-    lr_center = int(mask.shape[1] / 2)
+    lr_center = mask.shape[1] // 2
     left_half_idx = np.argwhere(mask[:, lr_center - 1, :].sum(axis=0) > 0).flatten()
     right_half_idx = np.argwhere(mask[:, lr_center, :].sum(axis=0) > 0).flatten()
     lr_map = map_layers_left_to_right(mask, lr_center, left_half_idx, right_half_idx)
     mask, deleted_layers_count_ltr = merge_layers(mask, lr_map, left_half_idx, right_half_idx)
 
-    tb_center = int(mask.shape[0] / 2)
+    tb_center = mask.shape[0] // 2
     top_half_idx = np.argwhere(mask[tb_center - 1, :, :].sum(axis=0) > 0).flatten()
     bottom_half_idx = np.argwhere(mask[tb_center, :, :].sum(axis=0) > 0).flatten()
     tb_map = map_layers_top_to_bottom(mask, tb_center, top_half_idx, bottom_half_idx)
@@ -113,34 +103,31 @@ def merge_layers_on_edges(mask):
     return mask, deleted_layers_count_ltr + deleted_layers_count_ttb
 
 
-def combine_masks(img_ids, source_dir):
+def combine_masks(img_ids, source_dir, mosaic_shape):
     """
-    Loads 4 masks and combines a mosaic img usin them as follows (_terribly slow_):
+    Loads 4 masks and combines a mosaic img using the following pattern:
         2 3
         0 1
     """
-    masks = [load_masks(img_id, source_dir) for img_id in img_ids]
-    w = masks[0].shape[1] + masks[1].shape[1]
-    channels = sum([mask.shape[-1] for mask in masks])
+    mask_paths = [glob(os.path.join(source_dir, img_id, "masks", "**.png")) for img_id in img_ids]
+    channels_count = sum([len(paths) for paths in mask_paths])
+    h, w = mosaic_shape[0] // 2, mosaic_shape[1] // 2
+    masks = np.zeros((*mosaic_shape, channels_count), dtype=np.bool)
 
-    return np.dstack([
-        np.vstack([
-            np.zeros((masks[0].shape[0], w, masks[0].shape[-1])),
-            np.hstack([masks[0], np.zeros(masks[0].shape)])
-        ]),
-        np.vstack([
-            np.zeros((masks[1].shape[0], w, masks[1].shape[-1])),
-            np.hstack([np.zeros(masks[1].shape), masks[1]])
-        ]),
-        np.vstack([
-            np.hstack([masks[2], np.zeros(masks[2].shape)]),
-            np.zeros((masks[2].shape[0], w, masks[2].shape[-1]))
-        ]),
-        np.vstack([
-            np.hstack([np.zeros(masks[3].shape), masks[3]]),
-            np.zeros((masks[3].shape[0], w, masks[3].shape[-1]))
-        ])
-    ]).astype(bool)
+    current_c = 0
+    for section_i, mask_paths_section in enumerate(mask_paths):
+        h_offset = h if section_i < 2 else 0
+        w_offset = w if section_i == 1 or section_i == 3 else 0
+
+        for mask_path in mask_paths_section:
+            mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+            mask = np.where(mask > 128, True, False)
+            masks[h_offset:h + h_offset,
+                  w_offset:w + w_offset,
+                  current_c] = mask
+            current_c += 1
+
+    return masks
 
 
 def extract_mosaic_ids_from_df(df):
@@ -174,10 +161,10 @@ if __name__ == "__main__":
     for i, row in tqdm(mosaics.iterrows()):
         mosaic = combine_images(row["img_id"], TRAIN_DIR)
         cv2.imwrite(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".png"), mosaic)
-        mask_mosaic = combine_masks(row["img_id"], TRAIN_DIR)
+        mask_mosaic = combine_masks(row["img_id"], TRAIN_DIR, mosaic.shape[:-1])
         mask_mosaic, deleted_layers_count = merge_layers_on_edges(mask_mosaic)
         np.save(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".npy"), mask_mosaic.astype(bool))
-        
+
     print("Copying non-mosaic train images to the same place:")
     for i, row in tqdm(non_mosaics.iterrows()):
         non_mosaic = cv2.imread(os.path.join(TRAIN_DIR, row["img_id"], "images", row["img_id"] + ".png"))
