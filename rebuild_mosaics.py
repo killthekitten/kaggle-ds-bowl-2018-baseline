@@ -153,7 +153,8 @@ def extract_mosaic_ids_from_df(df):
         df[~df.mosaic_position.isnull()] \
             .sort_values(["mosaic_idx", "mosaic_position"]) \
             .groupby("mosaic_idx") \
-            .agg({ "img_id": lambda x: list(x) })
+            .agg({ "img_id": lambda x: list(x) }) \
+            .reset_index()
     non_mosaics = df[df.mosaic_position.isnull()]
 
     return mosaics, non_mosaics
@@ -175,22 +176,22 @@ if __name__ == "__main__":
     print("Generating train mosaics:")
     for i, row in tqdm(mosaics.iterrows()):
         mosaic = combine_images(row["img_id"], TRAIN_DIR)
-        cv2.imwrite(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".png"), mosaic)
+        cv2.imwrite(os.path.join(TRAIN_MOSAICS_DIR, str(row["mosaic_idx"]) + ".png"), mosaic)
         mask_mosaic = combine_masks(row["img_id"], TRAIN_DIR, mosaic.shape[:-1])
         mask_mosaic, deleted_layers_count = merge_layers_on_edges(mask_mosaic)
-        np.save(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".npy"), mask_mosaic)
+        np.save(os.path.join(TRAIN_MOSAICS_DIR, str(row["mosaic_idx"]) + ".npy"), mask_mosaic)
 
     print("Copying non-mosaic train images to the same place:")
     for i, row in tqdm(non_mosaics.iterrows()):
         non_mosaic = cv2.imread(os.path.join(TRAIN_DIR, row["img_id"], "images", row["img_id"] + ".png"))
         cv2.imwrite(os.path.join(TRAIN_MOSAICS_DIR, str(row["mosaic_idx"]) + ".png"), non_mosaic)
         non_mosaic_mask = combine_non_mosaic_masks(row["img_id"], TRAIN_DIR, non_mosaic.shape[:-1])
-        np.save(os.path.join(TRAIN_MOSAICS_DIR, str(i) + ".npy"), non_mosaic_mask)
-        
+        np.save(os.path.join(TRAIN_MOSAICS_DIR, str(row["mosaic_idx"]) + ".npy"), non_mosaic_mask)
+
     print("Generating test mosaics:")
     for i, row in tqdm(test_mosaics.iterrows()):
         mosaic = combine_images(row["img_id"], TEST_DIR)
-        cv2.imwrite(os.path.join(TEST_MOSAICS_DIR, str(i) + ".png"), mosaic)
+        cv2.imwrite(os.path.join(TEST_MOSAICS_DIR, str(row["mosaic_idx"]) + ".png"), mosaic)
 
     print("Copying non-mosaic test images to the same place:")
     for i, row in tqdm(test_non_mosaics.iterrows()):
