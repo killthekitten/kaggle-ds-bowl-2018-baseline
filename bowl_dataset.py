@@ -16,7 +16,7 @@ class BowlDataset(Dataset):
         self.add_class("bowl", 1, "nuclei")
 
         masks = dict()
-        id_extractor = re.compile(base_path + "\/(?P<image_id>.*)\/masks\/(?P<mask_id>.*)\.png")
+        id_extractor = re.compile(f"{base_path}\{os.sep}(?P<image_id>.*)\{os.sep}masks\{os.sep}(?P<mask_id>.*)\.png")
 
         for mask_path in glob(os.path.join(base_path, "**", "masks", "*.png")):
             matches = id_extractor.match(mask_path)
